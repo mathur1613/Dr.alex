@@ -67,6 +67,21 @@ export default function App() {
   const [customColor, setCustomColor] = useState<DoctorInfo["themeColor"]>(doctorInfo.themeColor);
   const [customOnlineConsultation, setCustomOnlineConsultation] = useState(doctorInfo.onlineConsultation);
 
+  // --- Sandbox Display State ---
+  // Automatically hidden on live production environments (like Netlify) to keep things professional,
+  // but shown in development (localhost / dev urls) or if "?sandbox=true" is in the address bar.
+  const [showSandboxBar, setShowSandboxBar] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const isLocal = window.location.hostname === "localhost" || 
+                      window.location.hostname === "127.0.0.1" || 
+                      window.location.hostname.includes("ais-dev") ||
+                      window.location.hostname.includes("run.app");
+      const hasQuery = window.location.search.includes("sandbox=true");
+      return isLocal || hasQuery;
+    }
+    return true;
+  });
+
   // --- Database Integration State ---
   const [dbStatus, setDbStatus] = useState<{
     connected: boolean;
@@ -649,7 +664,8 @@ export default function App() {
       {/* ========================================================= */}
       {/* 1. BRANDING CUSTOMIZER FLOATING DRAWER */}
       {/* ========================================================= */}
-      <div className="bg-slate-950 text-white border-b border-slate-800 z-50">
+      {showSandboxBar && (
+        <div className="bg-slate-950 text-white border-b border-slate-800 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="bg-gradient-to-r from-sky-400 to-emerald-400 text-slate-950 font-bold px-2.5 py-1 rounded text-xs tracking-wider uppercase">
@@ -686,6 +702,16 @@ export default function App() {
             >
               <Sliders className="w-3.5 h-3.5" />
               {isCustomizing ? "Close Form" : "Edit Details"}
+            </button>
+
+            {/* Hide Sandbox Bar */}
+            <button
+              onClick={() => setShowSandboxBar(false)}
+              className="flex items-center justify-center w-7 h-7 bg-slate-900 hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 rounded transition border border-slate-700 hover:border-rose-900/40"
+              id="hide-sandbox-btn"
+              title="Dismiss Sandbox Control Panel"
+            >
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -828,6 +854,7 @@ export default function App() {
           </div>
         )}
       </div>
+      )}
 
       {/* ========================================================= */}
       {/* 2. STICKY NAVIGATION BAR */}
