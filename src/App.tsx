@@ -72,6 +72,10 @@ export default function App() {
   // but shown in development (localhost / dev urls) or if "?sandbox=true" is in the address bar.
   const [showSandboxBar, setShowSandboxBar] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
+      // If the user has explicitly dismissed/hidden the sandbox bar, respect their choice permanently
+      if (localStorage.getItem("sandbox-bar-hidden") === "true") {
+        return false;
+      }
       const isLocal = window.location.hostname === "localhost" || 
                       window.location.hostname === "127.0.0.1" || 
                       window.location.hostname.includes("ais-dev") ||
@@ -706,7 +710,12 @@ export default function App() {
 
             {/* Hide Sandbox Bar */}
             <button
-              onClick={() => setShowSandboxBar(false)}
+              onClick={() => {
+                setShowSandboxBar(false);
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("sandbox-bar-hidden", "true");
+                }
+              }}
               className="flex items-center justify-center w-7 h-7 bg-slate-900 hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 rounded transition border border-slate-700 hover:border-rose-900/40"
               id="hide-sandbox-btn"
               title="Dismiss Sandbox Control Panel"
